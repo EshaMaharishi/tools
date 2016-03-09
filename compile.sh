@@ -21,5 +21,9 @@ fi
 ### compile the specific target given on the command line
 if [ "$#" -eq 1 ]; then
 echo 'compiling ' $1
-CC=$(which clang) CXX=$(which clang++) ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer) time scons --allocator=system --opt=off --sanitize=address -j 24 $1 
+
+#CC=$(which clang) CXX=$(which clang++) ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer) time scons --allocator=system --opt=off --sanitize=address -j 24 $1 
+
+CC=$(which clang) CXX=$(which clang++) time scons --allocator=system --quiet --opt=off --gdbserver -j 24 core $1
+
 fi
