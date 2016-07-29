@@ -1,46 +1,59 @@
+# exit script on error
 set -e
 
-scons_opts_default="CC=$(which clang) CXX=$(which clang++) -j 24 --mute"
-scons_opts_asan="--allocator=system --opt=off --sanitize=address" 
-scons_opts_gdb="--allocator=tcmalloc --opt=off --gdbserver"
-
-env_opts_asan="ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer-3.6)"
-
-#########################################
-### by default compile core with ASAN  ###
-#########################################
-if [ "$#" -ne 1 ]; then
-
-    
-    # regular compile
-    #echo 'compiling core'
-    #time scons $scons_opts_default core
-
-    # compile with gdbserver
-    #echo 'compiling core with debug symbols and gdbserver'
-    #time scons $scons_opts_default $scons_opts_gdb core
-
-    # compile with address sanitizer
-    echo 'compiling core with ASan'
-    $env_opts_scons time scons $scons_opts_default $scons_opts_asan core
-
-    echo "last core compile on branch\n`git branch`\nwith changed files\n`git diff --name-only master`\nwith diff from master\n`git diff master`" > esha/last_compile
-
-fi
-
-#############################################################
-### compile the specific target given on the command line ###
-#############################################################
+# if target passed as argument, use that, else default to building core
+target="core"
 if [ "$#" -eq 1 ]; then
-
-    echo 'compiling' $1 'with ASAN'
-    $env_opts_scons time scons $scons_opts_default $scons_opts_asan $1
-
-    #echo 'compiling' $1 'with debug symbols'
-    #time scons $scons_opts_default $scons_opts_gdb $1
-
+    target=$1
 fi
+echo 'compiling ' $target
+
+# path to scons script
+scons_script="/home/eshamaharishi/code/mongo/buildscripts/scons.py"
+
+# scons options
+scons_jobs="-j 24"
+scons_clang="CC=$(which clang) CXX=$(which clang++)" 
+scons_gcc="CC=/opt/mongodbtoolchain/v2/bin/gcc CXX=/opt/mongodbtoolchain/v2/bin/g++"
+scons_dynamic="--link-model=dynamic"
+scons_no_opt="--opt=off"
+scons_asan="--allocator=system --sanitize=address" 
+scons_gdbserver="--gdbserver"
+
+# environment options
+env_asan="ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer-3.6)"
+
+################################# compile permutations ###################################
+
+# static compile with gcc (for debugging with gdb)
+#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
+
+# static compile with clang (for debugging with gdb)
+#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
+
+# static compile with gdbserver (gcc)
+#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_gdbserver $target
+
+# static compile with gdbserver (clang)
+#time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_gdbserver $target
+
+# dynamic compile with gcc
+#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_dynamic $target
+
+# dynamic compile with clang
+time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $target
+
+# dynamic compile with address sanitizer (only works with clang)
+#ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.6 time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $scons_asan $target
+
+if [ $target="core" ]; then
+    echo "last core compile on branch\n`git branch`\nwith changed files\n`git diff --name-only master`\nwith diff from master\n`git diff master`" > esha/last_compile
+fi
+
+##########################################################################################
 
 ####### how to compile a library directly with dynamic linker #######
-#time scons $scons_opts_default --link-model=dynamic \$BUILD_DIR/mongo/s/libcluster_last_error_info.so
+#target = \$BUILD_DIR/mongo/s/libcluster_last_error_info.so
 
+# demangler
+#python mongosymb.py --symbolizer-path=$(which llvm-symbolizer-3.6) <path/to/executable> < trace
