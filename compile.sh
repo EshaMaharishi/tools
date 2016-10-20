@@ -25,26 +25,21 @@ env_asan="ASAN_SYMBOLIZER_PATH=$(which llvm-symbolizer-3.6)"
 
 ################################# compile permutations ###################################
 
-# static compile with gcc (for debugging with gdb)
-#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
+# echo "static compile with gcc (for debugging with gdb)"; time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
 
-# static compile with clang (for debugging with gdb)
-#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
+# echo "static compile with clang (for debugging with gdb)"; time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $target
 
-# static compile with gdbserver (gcc)
-#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_gdbserver $target
+# echo "static compile with gcc with --gdbserver"; time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_gdbserver $target
 
-# static compile with gdbserver (clang)
-#time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_gdbserver $target
+# echo "static compile with clang with --gdbserver"; time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_gdbserver --ssl $target
 
-# dynamic compile with gcc
-#time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_dynamic $target
+ echo "dynamic compile with gcc"; time python $scons_script $scons_jobs $scons_gcc $scons_no_opt $scons_dynamic --ssl $target
 
-# dynamic compile with clang
-time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $target
+# echo "dynamic compile with gcc with rocksdb"; time python $scons_script $scons_jobs $scons_gcc $scons_noo_opt $scons_dynamic --ssl CPPPATH="$(echo ~/code/rocksdb/include/) /usr/local/include/" LIBPATH="$(echo ~/code/rocksdb/) /usr/local/lib/" $target
 
-# dynamic compile with address sanitizer (only works with clang)
-#ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.6 time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $scons_asan $target
+# echo "dynamic compile with clang"; time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $target
+
+#echo "dynamic compile with clang with address sanitizer (only works with clang)"; ASAN_SYMBOLIZER_PATH=/usr/bin/llvm-symbolizer-3.6 time python $scons_script $scons_jobs $scons_clang $scons_no_opt $scons_dynamic $scons_asan $target
 
 if [ $target="core" ]; then
     echo "last core compile on branch\n`git branch`\nwith changed files\n`git diff --name-only master`\nwith diff from master\n`git diff master`" > esha/last_compile
