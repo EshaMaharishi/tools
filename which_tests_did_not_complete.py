@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys
 import re
 
@@ -9,6 +10,7 @@ filename = sys.argv[1]
 
 started_tests = []
 completed_tests = []
+test_logs = {}
 
 with open(filename) as f:
     content = f.readlines();
@@ -22,5 +24,10 @@ for line in content:
     if m:
         completed_tests.append(m.group(0)[5:-7])
 
+    m = re.search("Writing output of JSTest jstests.+[\\\\/](\w+\.js) to (http.*/)\.", line)
+    if m:
+        test_logs[m.group(1)] = m.group(2)
+
 print("tests that started but did not complete:")
-print(list(set(started_tests) - set(completed_tests)))
+for t in list(set(started_tests) - set(completed_tests)):
+    print t, test_logs.get(t, '(log url not available)')
