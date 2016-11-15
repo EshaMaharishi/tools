@@ -28,6 +28,18 @@ for line in content:
     if m:
         test_logs[m.group(1)] = m.group(2)
 
+    m = re.search("Starting Hook (\w+:\w+) under executor \w+\.\.\.", line)
+    if m:
+        started_tests.append(m.group(1))
+
+    m = re.search("Writing output of Hook (\w+:\w+) to (http.*/)\.", line)
+    if m:
+        test_logs[m.group(1)] = m.group(2)
+
+    m = re.search("Hook (\w+:\w+) finished\.", line)
+    if m:
+        completed_tests.append(m.group(1))
+
 print("tests that started but did not complete:")
 for t in list(set(started_tests) - set(completed_tests)):
     print t, test_logs.get(t, '(log url not available)')
