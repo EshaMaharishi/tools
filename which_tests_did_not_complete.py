@@ -16,6 +16,8 @@ with open(filename) as f:
     content = f.readlines();
 
 for line in content:
+
+    # jstests
     m = re.search("Running .*\.js", line)
     if m:
         started_tests.append(m.group(0)[len("Running "):])
@@ -28,6 +30,7 @@ for line in content:
     if m:
         test_logs[m.group(1)] = m.group(2)
 
+    # hooks
     m = re.search("Starting Hook (\w+:\w+) under executor \w+\.\.\.", line)
     if m:
         started_tests.append(m.group(1))
@@ -39,6 +42,20 @@ for line in content:
     m = re.search("Hook (\w+:\w+) finished\.", line)
     if m:
         completed_tests.append(m.group(1))
+
+    # unittests
+    m = re.search("Running .*\.\.\.", line)
+    if m:
+        started_tests.append(m.group(0)[len("Running "):-3])
+
+    m = re.search("0000 .* ran in", line)
+    if m:
+        completed_tests.append(m.group(0)[5:-7])
+
+    m = re.search("Writing output of Program (.*) to (http.*/)\.", line)
+    if m:
+        testName = m.group(1)
+        test_logs[testName.split('/')[-1:][0]] = m.group(2)
 
 print("tests that started but did not complete:")
 for t in list(set(started_tests) - set(completed_tests)):
