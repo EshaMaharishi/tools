@@ -1,0 +1,8 @@
+if [ "$#" -ne 1 ]; then
+    echo 'Usage: dedup logs_with_hang_analyzer_output'
+    exit 1
+fi
+
+sed -e 's/.*\] //g' $1 | egrep "^Thread|^#|^Attaching to process|^\* |^From|Done analyzing process" > $1"_deduped_logs"
+#sed -e 's/.*\] //g' $1 | egrep "^Thread|^#|^Attaching to process|^Reading symbols from|^  [0-9]|^\* |^From|Done analyzing process" > $1"_deduped_logs"
+python ~/code/mongo-master/esha/mongo_gdb/parse_gdb_output.py $1"_deduped_logs"

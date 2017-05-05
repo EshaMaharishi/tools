@@ -1,0 +1,12 @@
+if [ "$#" -ne 1 ]; then
+    echo 'Usage: nmboth <symbol>'
+    exit 1
+fi
+
+symbol=$1
+
+echo 'mongod:'
+nm mongod --demangle --dynamic | c++filt | grep $symbol | python -m colout.colout $symbol red
+
+echo 'mongos:'
+nm mongos --demangle --dynamic | c++filt | grep $symbol | python -m colout.colout $symbol blue

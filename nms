@@ -1,0 +1,10 @@
+if [ "$#" -ne 1 ]; then
+    echo 'Usage: nms <symbol>'
+    exit 1
+fi
+
+echo 'Warning: Make sure your binaries were statically linked before using nm to look for symbols.'
+
+symbol=$1
+wrappedSymbol="::"$1"::"
+nm mongos | c++filt | grep $wrappedSymbol | python -m colout.colout $symbol red

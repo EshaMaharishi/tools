@@ -21,10 +21,12 @@ for line in content:
     m = re.search("Running .*\.js", line)
     if m:
         started_tests.append(m.group(0)[len("Running "):])
+        print "added: " + m.group(0)[len("running "):]
 
     m = re.search("0000 .* ran in", line)
     if m:
         completed_tests.append(m.group(0)[5:-7])
+        print "completed: " + m.group(0)[5:-7]
 
     m = re.search("Writing output of JSTest jstests.+[\\\\/](\w+\.js) to (http.*/)\.", line)
     if m:

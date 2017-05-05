@@ -1,0 +1,8 @@
+if [ "$#" -ne 1 ]; then
+    echo 'Usage: check <evergreen-task-logs-filename>'
+    exit 1
+fi
+
+logs=$1
+
+egrep -rIn "failed to load|invariant|[^_]fatal|terminate\(\)|segmentation|access violation|was expected to be running|uncaught|Parallel Test FAILED" $logs

@@ -1,0 +1,18 @@
+if [ "$#" -ne 1 ]; then
+    echo 'Usage: get <evergreen-task-logs-url>'
+    exit 1
+fi
+
+link=$1
+
+# download the logs
+wget $link
+
+# generate a fileName from the url
+linkTokenizedArray=(${link//\// })
+fileName=${linkTokenizedArray[3]}
+
+# rename the downloaded file to the fileName
+mv "0?type=T&text=true" $fileName 
+
+echo "Saved logs to:" $fileName

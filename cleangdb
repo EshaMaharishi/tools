@@ -1,0 +1,4 @@
+sudo pkill gdbserver
+sudo pkill mongod
+sudo pkill mongos
+sudo pkill mongo
